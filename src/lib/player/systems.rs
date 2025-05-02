@@ -3,10 +3,14 @@
 use bevy::prelude::*;
 
 use bevy::color::palettes::basic::BLUE;
+use bevy::render::primitives::Aabb;
 
-use super::structs::{MainCamera, Player};
+use crate::lib::helper::restrict_transform_movement;
+use crate::lib::scene::structs::Solid;
 
-use super::PLAYER_SPEED;
+use super::structs::{MainCamera, Player, YVel};
+
+use super::{CAMERA_DIST, GRAVITY, PLAYER_SPEED};
 
 pub fn spawn_player (
     mut coms: Commands,
@@ -15,13 +19,14 @@ pub fn spawn_player (
 ) {
     coms.spawn((
         Player {},
+        YVel::default(),
         Mesh3d(meshes.add(Cuboid::default())),
         MeshMaterial3d(materials.add(Color::from(BLUE))),
-        Transform::from_xyz(0.0, 0.5, 0.0),
+        Transform::from_xyz(0.0, 5.5, 0.0),
     ));
 
     coms.spawn((
-        MainCamera {},
+        MainCamera { dir: Vec3::new(5.0, 4.0, 6.0) },
         Camera3d::default(),
         Transform::from_xyz(5.0, 4.0, 6.0).looking_at(Vec3::new(0.0, 0.0, 0.0), Vec3::Y),
     ));
@@ -56,14 +61,63 @@ pub fn move_player (
 
         dir = dir.normalize_or_zero();
 
-
         player.translation += dir * PLAYER_SPEED * time.delta_secs();
+    }
+}
 
+pub fn apply_yvel (
+    mut player_q: Query<(&mut YVel, &mut Transform), With<Player>>,
+    time: Res<Time>,
+) {
+    for (mut vel, mut transform) in player_q.iter_mut() {
+        transform.translation.y += vel.vel * time.delta_secs();
+    }
+}
+
+pub fn gravity (
+    mut player_q: Query<&mut YVel, With<Player>>,
+    time: Res<Time>,
+) {
+    for mut vel in player_q.iter_mut() {
+        vel.vel -= GRAVITY * time.delta_secs();
+    }
+}
+
+pub fn camera_follow (
+    mut camera_q: Query<(&mut Transform, &MainCamera)>,
+    player_q: Query<&Transform, (With<Player>, Without<MainCamera>)>,
+) {
+
+    if let (Ok((mut camera_transform, camera)), Ok(player_transform)) = (camera_q.get_single_mut(), player_q.get_single()) {
+        camera_transform.translation = player_transform.translation + (camera.dir.normalize() * CAMERA_DIST);
+
+        camera_transform.rotation = camera_transform.looking_at(player_transform.translation, Vec3::Y).rotation;
 
     }
+}
+
+pub fn restrict_movement (
+    mut player_q: Query<(&mut Transform, &Aabb, &mut YVel), With<Player>>,
+    solids_q: Query<(&Transform, &Aabb), (With<Solid>, Without<Player>)>
+) {
+    for (mut transform, aabb, mut y_vel) in player_q.iter_mut() {
+        for (solid_transform, solid_aabb) in solids_q.iter() {
+            
+            let mut player_size: Vec3 = aabb.half_extents.into();
+            player_size *= 2.0;
+
+            let mut solid_size: Vec3 = solid_aabb.half_extents.into();
+            solid_size *= 2.0;
 
 
+            let (_, y_restrict, _) = restrict_transform_movement(&mut transform, player_size, solid_transform, solid_size);
 
+            if let Some(y_restrict) = y_restrict {
 
-
+                if y_restrict > 0.0 {
+                    y_vel.vel = 0.0;
+                }
+            }
+        }
+    }
 }

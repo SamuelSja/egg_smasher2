@@ -3,6 +3,8 @@
 
 use bevy::{color::palettes::css::GREEN, prelude::*};
 
+use super::structs::Solid;
+
 
 
 pub fn spawn_ground(
@@ -12,6 +14,7 @@ pub fn spawn_ground(
 ) {
 
     coms.spawn((
+        Solid {},
         Mesh3d(meshes.add(Cuboid::new(10.0, 2.0, 10.0))),
         MeshMaterial3d(materials.add(Color::from(GREEN))),
         Transform::from_xyz(0.0, -1.0, 0.0),

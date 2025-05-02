@@ -3,6 +3,7 @@ pub mod eggs;
 pub mod player;
 pub mod scene;
 pub mod other;
+pub mod helper;
 
 use bevy::prelude::*;
 use eggs::EggPlug;
