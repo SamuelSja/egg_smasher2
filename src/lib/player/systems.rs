@@ -131,6 +131,14 @@ pub fn restrict_movement (
                 if y_restrict != 0.0 {
                     y_vel.vel = 0.0;
                 }
+
+                if y_restrict > 0.0 {
+                    y_vel.grounded = true; 
+                } else {
+                    y_vel.grounded = false;
+                }
+            } else {
+                y_vel.grounded = false;
             }
         }
     }
@@ -173,7 +181,7 @@ pub fn jump (
 ) {
 
     if let Ok(mut vel) = player_q.get_single_mut() {
-        if keyboard.just_pressed(KeyCode::Space) {
+        if keyboard.just_pressed(KeyCode::Space) && vel.grounded {
             vel.vel += JUMP_POWER;
         }
     }
