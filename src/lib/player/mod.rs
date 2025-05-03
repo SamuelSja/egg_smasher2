@@ -28,7 +28,7 @@ impl Plugin for PlayerPlug {
             move_player.before(camera_follow).before(restrict_movement),
             apply_yvel.before(camera_follow).before(restrict_movement),
             restrict_movement.before(camera_follow),
-            gravity,
+            gravity.before(apply_yvel),
             camera_movement.before(camera_follow),
             camera_follow,
 

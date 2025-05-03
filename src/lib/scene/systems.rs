@@ -15,7 +15,7 @@ pub fn spawn_ground(
 
     coms.spawn((
         Solid {},
-        Mesh3d(meshes.add(Cuboid::new(10.0, 2.0, 10.0))),
+        Mesh3d(meshes.add(Cuboid::new(40.0, 2.0, 40.0))),
         MeshMaterial3d(materials.add(Color::from(GREEN))),
         Transform::from_xyz(0.0, -1.0, 0.0),
     ));
