@@ -13,7 +13,7 @@ use crate::lib::scene::structs::Solid;
 
 use super::structs::{MainCamera, Player, YVel};
 
-use super::{CAMERA_DIST, CAMERA_LIMIT, CAMERA_MOVE_SPEED, GRAVITY, PLAYER_SPEED};
+use super::{CAMERA_DIST, CAMERA_LIMIT, CAMERA_MOVE_SPEED, GRAVITY, JUMP_POWER, PLAYER_SPEED};
 
 pub fn spawn_player (
     mut coms: Commands,
@@ -128,7 +128,7 @@ pub fn restrict_movement (
 
             if let Some(y_restrict) = y_restrict {
 
-                if y_restrict > 0.0 {
+                if y_restrict != 0.0 {
                     y_vel.vel = 0.0;
                 }
             }
@@ -167,3 +167,14 @@ pub fn camera_movement (
     }
 }
 
+pub fn jump (
+    keyboard: Res<ButtonInput<KeyCode>>,
+    mut player_q: Query<&mut YVel, With<Player>>,
+) {
+
+    if let Ok(mut vel) = player_q.get_single_mut() {
+        if keyboard.just_pressed(KeyCode::Space) {
+            vel.vel += JUMP_POWER;
+        }
+    }
+}
