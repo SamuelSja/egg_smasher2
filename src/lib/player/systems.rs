@@ -95,8 +95,6 @@ pub fn camera_follow (
 ) {
 
     if let (Ok((mut camera_transform, camera)), Ok(player_transform)) = (camera_q.get_single_mut(), player_q.get_single()) {
-        // camera_transform.translation = player_transform.translation + (camera.dir.normalize() * CAMERA_DIST);
-
 
         let a = camera.vert.cos();
 
