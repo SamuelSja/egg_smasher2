@@ -24,5 +24,7 @@ impl Default for YVel {
 
 #[derive(Component)]
 pub struct MainCamera {
-    pub dir: Vec3,
+    // pub dir: Vec3,
+    pub vert: f32,
+    pub horez: f32,
 }

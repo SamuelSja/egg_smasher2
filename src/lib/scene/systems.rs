@@ -1,7 +1,7 @@
 
 
 
-use bevy::{color::palettes::css::GREEN, prelude::*};
+use bevy::{color::palettes::css::{GREEN, RED, WHITE}, prelude::*};
 
 use super::structs::Solid;
 
@@ -21,4 +21,24 @@ pub fn spawn_ground(
     ));
 
 
+}
+
+
+
+
+
+pub fn spawn_light (
+    mut coms: Commands,
+
+) {
+    coms.spawn((
+        SpotLight {
+            intensity: 100_000_000.0,
+            color: WHITE.into(),
+            shadows_enabled: true,
+            range: 1000.0,
+            ..default()
+        },
+        Transform::from_xyz(30.0, 100.0, 50.0).looking_at(Vec3::ZERO, Vec3::Y),
+    ));
 }

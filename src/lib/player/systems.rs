@@ -1,16 +1,19 @@
 
 
+use std::f32::consts::PI;
+
 use bevy::prelude::*;
 
 use bevy::color::palettes::basic::BLUE;
 use bevy::render::primitives::Aabb;
+use bevy::window::PrimaryWindow;
 
 use crate::lib::helper::restrict_transform_movement;
 use crate::lib::scene::structs::Solid;
 
 use super::structs::{MainCamera, Player, YVel};
 
-use super::{CAMERA_DIST, GRAVITY, PLAYER_SPEED};
+use super::{CAMERA_DIST, CAMERA_LIMIT, CAMERA_MOVE_SPEED, GRAVITY, PLAYER_SPEED};
 
 pub fn spawn_player (
     mut coms: Commands,
@@ -26,7 +29,10 @@ pub fn spawn_player (
     ));
 
     coms.spawn((
-        MainCamera { dir: Vec3::new(5.0, 4.0, 6.0) },
+        MainCamera { 
+            vert: PI / 4.0,
+            horez: PI / 8.0,
+        },
         Camera3d::default(),
         Transform::from_xyz(5.0, 4.0, 6.0).looking_at(Vec3::new(0.0, 0.0, 0.0), Vec3::Y),
     ));
@@ -89,7 +95,15 @@ pub fn camera_follow (
 ) {
 
     if let (Ok((mut camera_transform, camera)), Ok(player_transform)) = (camera_q.get_single_mut(), player_q.get_single()) {
-        camera_transform.translation = player_transform.translation + (camera.dir.normalize() * CAMERA_DIST);
+        // camera_transform.translation = player_transform.translation + (camera.dir.normalize() * CAMERA_DIST);
+
+
+        let a = camera.vert.cos();
+
+        let delta = CAMERA_DIST * Vec3::new(camera.horez.sin() * a, camera.vert.sin(), camera.horez.cos() * a);
+
+        camera_transform.translation = player_transform.translation + delta;
+
 
         camera_transform.rotation = camera_transform.looking_at(player_transform.translation, Vec3::Y).rotation;
 
@@ -121,3 +135,35 @@ pub fn restrict_movement (
         }
     }
 }
+
+
+pub fn camera_movement (
+    mouse_buttons: Res<ButtonInput<MouseButton>>,
+    mut evr_cursor: EventReader<CursorMoved>,
+
+    mut camera_q: Query<&mut MainCamera>,
+
+) {
+    if let Ok(mut camera) = camera_q.get_single_mut() {
+        for event in evr_cursor.read() {
+            if mouse_buttons.pressed(MouseButton::Right) {
+                if let Some(delta) = event.delta {
+                    let delta_rad = delta * CAMERA_MOVE_SPEED;
+
+                    camera.horez = (camera.horez - delta_rad.x + 2.0 * PI) % (2.0 * PI);
+
+
+                    camera.vert += delta_rad.y;
+                    if camera.vert > CAMERA_LIMIT {
+                        camera.vert = CAMERA_LIMIT
+                    }
+
+                    if camera.vert < -CAMERA_LIMIT {
+                        camera.vert = -CAMERA_LIMIT
+                    }
+                }
+            }
+        }
+    }
+}
+
