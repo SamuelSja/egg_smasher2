@@ -7,6 +7,7 @@ pub mod systems;
 use std::f32::consts::PI;
 
 use bevy::prelude::*;
+use structs::Shells;
 use systems::*;
 
 
@@ -22,6 +23,7 @@ pub struct PlayerPlug;
 impl Plugin for PlayerPlug {
     fn build(&self, app: &mut App) {
         app
+        .init_resource::<Shells>()
         .add_systems(Startup, spawn_player)
         .add_systems(Update, (
             jump.before(apply_yvel),
@@ -31,10 +33,11 @@ impl Plugin for PlayerPlug {
             gravity.before(apply_yvel),
             camera_movement.before(camera_follow),
             camera_follow,
+            camera_zoom,
 
 
         ))
-        ;
+        ;        
     }
 }
 

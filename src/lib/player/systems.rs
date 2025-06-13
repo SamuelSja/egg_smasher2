@@ -2,6 +2,7 @@
 
 use std::f32::consts::PI;
 
+use bevy::input::mouse::MouseWheel;
 use bevy::prelude::*;
 
 use bevy::color::palettes::basic::BLUE;
@@ -10,6 +11,8 @@ use bevy::window::PrimaryWindow;
 
 use crate::lib::helper::restrict_transform_movement;
 use crate::lib::scene::structs::Solid;
+use crate::lib::upgrades::base::UpgradeInfo;
+use crate::lib::upgrades::Upgrade;
 
 use super::structs::{MainCamera, Player, YVel};
 
@@ -32,6 +35,7 @@ pub fn spawn_player (
         MainCamera { 
             vert: PI / 4.0,
             horez: PI / 8.0,
+            dist: 8.0,
         },
         Camera3d::default(),
         Transform::from_xyz(5.0, 4.0, 6.0).looking_at(Vec3::new(0.0, 0.0, 0.0), Vec3::Y),
@@ -44,6 +48,7 @@ pub fn move_player (
     camera_q: Query<&Transform, (With<MainCamera>, Without<Player>)>,
     button_input: Res<ButtonInput<KeyCode>>,
     time: Res<Time>,
+    upgrade_info: Res<UpgradeInfo>,
 ) {
 
     if let (Ok(camera), Ok(mut player)) = (camera_q.get_single(), player_q.get_single_mut()) {
@@ -64,10 +69,10 @@ pub fn move_player (
         }
 
         dir.y = 0.0;
-
         dir = dir.normalize_or_zero();
 
-        player.translation += dir * PLAYER_SPEED * time.delta_secs();
+        // arg. time is 0 because it should have no effect on speed
+        player.translation += dir * PLAYER_SPEED * time.delta_secs() * Upgrade::Speed.effect(upgrade_info.upgrades[Upgrade::Speed as usize], 0.0);
     }
 }
 
@@ -98,7 +103,7 @@ pub fn camera_follow (
 
         let a = camera.vert.cos();
 
-        let delta = CAMERA_DIST * Vec3::new(camera.horez.sin() * a, camera.vert.sin(), camera.horez.cos() * a);
+        let delta = camera.dist * Vec3::new(camera.horez.sin() * a, camera.vert.sin(), camera.horez.cos() * a);
 
         camera_transform.translation = player_transform.translation + delta;
 
@@ -169,6 +174,17 @@ pub fn camera_movement (
                     }
                 }
             }
+        }
+    }
+}
+
+pub fn camera_zoom (
+    mut camera_q: Query<&mut MainCamera>,
+    mut evr_scroll: EventReader<MouseWheel>,
+) {
+    if let Ok(mut camera) = camera_q.get_single_mut() {
+        for event in evr_scroll.read() {
+            camera.dist -= event.y;
         }
     }
 }

@@ -1,3 +1,5 @@
+#![feature(variant_count)]
+
 
 pub mod lib;
 

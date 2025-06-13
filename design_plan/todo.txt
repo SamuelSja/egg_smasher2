@@ -1,0 +1,16 @@
+
+
+Just finished adding upgrades
+
+todo: 
+* see todo in upgrades/base.rs/effect method
+* update egg smashing to allow multiple eggs to be smashed at once if attack is high enough. Also as attack increases make the velocity decrees less.
+
+
+
+
+
+
+
+
+

@@ -1,5 +1,9 @@
 
+use std::time::Duration;
+
 use bevy::prelude::*;
+
+use super::EGG_PERIOD;
 
 
 #[derive(Component)]
@@ -29,6 +33,21 @@ impl Egg {
             health,
             max_health: health,
             color,
+        }
+    }
+}
+
+#[derive(Resource)]
+pub struct EggGenerationInfo {
+    pub eggs: u32,
+    pub timer: Timer,
+}
+
+impl Default for EggGenerationInfo {
+    fn default() -> Self {
+        Self {
+            eggs: 0,
+            timer: Timer::new(EGG_PERIOD, TimerMode::Repeating),
         }
     }
 }
