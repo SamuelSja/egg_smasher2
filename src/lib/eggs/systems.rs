@@ -144,7 +144,7 @@ pub fn smash_egg (
                         coms.spawn((AudioPlayer(
                             source,
                         ),
-                            PlaybackSettings::ONCE,
+                            PlaybackSettings::DESPAWN,
                         ));
 
 
