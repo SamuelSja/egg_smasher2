@@ -3,33 +3,105 @@
 
 use std::u32;
 
-use bevy::{color::palettes::css::SILVER, prelude::*};
-use rand::RngCore;
+use bevy::{color::palettes::css::*, prelude::*};
+use rand::{Rng, RngCore};
 
-use crate::lib::{helper::collide, player::structs::{Player, Shells, YVel}, upgrades::{base::UpgradeInfo, Upgrade}};
+use crate::lib::{helper::{collide}, player::structs::{Player, Shells, YVel}, upgrades::{base::UpgradeInfo, Upgrade}};
 
 use super::{structs::{Egg, EggGenerationInfo}, EGG_SPAWN_POS, EGG_SPAWN_SIZE};
 
+// /// Spawns a plane egg
+// pub fn spawn_basic_egg(coms: &mut Commands, meshes: &mut ResMut<Assets<Mesh>>, materials: &mut ResMut<Assets<StandardMaterial>>, position: Vec2, egg_info: &mut EggGenerationInfo) {
+// 
+//     coms.spawn((
+//         Mesh3d(meshes.add(Cuboid::new(0.5, 1.0, 0.5))),
+//         MeshMaterial3d(materials.add(Color::from(SILVER))),
+//         Transform::from_xyz(position.x, 0.5, position.y),
+//         Egg::new(10.0, 8.0, Color::from(SILVER)),
+//     ));
+//     egg_info.eggs += 1;
+// }
 
-pub fn spawn_egg(coms: &mut Commands, meshes: &mut ResMut<Assets<Mesh>>, materials: &mut ResMut<Assets<StandardMaterial>>, position: Vec2, egg_info: &mut EggGenerationInfo) {
+/// Spawns a random type of egg
+pub fn spawn_random_egg(coms: &mut Commands, meshes: &mut ResMut<Assets<Mesh>>, materials: &mut ResMut<Assets<StandardMaterial>>, egg_info: &mut EggGenerationInfo) {
+    let end = EGG_SPAWN_POS + EGG_SPAWN_SIZE; 
+    let start = EGG_SPAWN_POS - EGG_SPAWN_SIZE; 
+    let mut rng = rand::rng();
+    let ran = (rng.next_u32(), rng.next_u32());
+    let ran = Vec2::new(ran.0 as f32, ran.1 as f32);
+    let position = (ran / Vec2::splat(u32::MAX as f32)) * (end - start) + start;
+
+    let rarity = rng.random_range(0..1150) as f32;
+
+    let color = rarity_color(rarity);
+
     coms.spawn((
         Mesh3d(meshes.add(Cuboid::new(0.5, 1.0, 0.5))),
-        MeshMaterial3d(materials.add(Color::from(SILVER))),
+        MeshMaterial3d(materials.add(color)),
         Transform::from_xyz(position.x, 0.5, position.y),
-        Egg::new(10.0, 8.0, Color::from(SILVER)),
+        Egg::new(rarity_health(rarity), 8.0, color, rarity_shells(rarity)),
     ));
     egg_info.eggs += 1;
 }
 
 
-pub fn spawn_test_egg (
-    mut coms: Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
-    mut egg_info: ResMut<EggGenerationInfo>,
-) {
-    spawn_egg(&mut coms, &mut meshes, &mut materials, Vec2::new(5.0, 5.0), &mut egg_info);
+/// given the rarity this method gives a color for it
+pub fn rarity_color(rarity: f32) -> Color {
+    if rarity <= 500.0 {
+        Color::from(SILVER)
+    } else if rarity <= 700.0 {
+        Color::from(GREEN)
+    } else if rarity <= 1150.0 {
+        Color::from(GOLD)
+    } else {
+        Color::from(RED)
+    }
 }
+
+/// Give the health based of the rarity
+pub fn rarity_health(rarity: f32) -> f32 {
+    
+    rarity *  
+    if rarity <= 500.0 {
+        1.0 / 100.0
+    } else if rarity <= 700.0 {
+        1.0 / 25.0
+    } else if rarity <= 1150.0 {
+        1.0 / 10.0
+    } else {
+        1_000_000.0
+    }
+}
+
+pub fn rarity_shells(rarity: f32) -> i32 {
+    (rarity * 
+    if rarity <= 500.0 {
+        1.0 / 200.0
+    } else if rarity < 700.0 {
+        1.0 / 35.0
+    } else if rarity < 1150.0 {
+        1.0 / 10.0
+    } else {
+        0.0
+    }
+    
+    ).ceil() as i32
+}
+
+
+
+
+
+
+
+// pub fn spawn_test_egg (
+//     mut coms: Commands,
+//     mut meshes: ResMut<Assets<Mesh>>,
+//     mut materials: ResMut<Assets<StandardMaterial>>,
+//     mut egg_info: ResMut<EggGenerationInfo>,
+// ) {
+//     spawn_egg(&mut coms, &mut meshes, &mut materials, Vec2::new(5.0, 5.0), &mut egg_info);
+// }
 
 pub fn smash_egg (
     mut coms: Commands,
@@ -78,7 +150,12 @@ pub fn smash_egg (
 
                         coms.get_entity(entity).unwrap().despawn();
 
-                        shells.val += 1;
+                        let new_shells = shells.val as i32 + egg.shells;
+                        shells.val = if new_shells < 0 {
+                            0
+                        } else {
+                            new_shells as u32
+                        };
                         egg_info.eggs -= 1;
 
                     }
@@ -88,7 +165,27 @@ pub fn smash_egg (
     }
 }
 
-pub fn egg_generation(
+// pub fn basic_egg_generation(
+//     mut coms: Commands,
+//     mut meshes: ResMut<Assets<Mesh>>,
+//     mut materials: ResMut<Assets<StandardMaterial>>,
+//     mut egg_info: ResMut<EggGenerationInfo>,
+//     time: Res<Time>,
+// ) {
+// 
+//     if egg_info.timer.tick(time.delta()).just_finished() {
+//         let start = EGG_SPAWN_POS - EGG_SPAWN_SIZE; 
+//         let end = EGG_SPAWN_POS + EGG_SPAWN_SIZE; 
+//         let mut rng = rand::rng();
+//         let ran = (rng.next_u32(), rng.next_u32());
+//         let ran = Vec2::new(ran.0 as f32, ran.1 as f32);
+//         let ran = (ran / Vec2::splat(u32::MAX as f32)) * (end - start) + start;
+// 
+//         spawn_basic_egg(&mut coms, &mut meshes, &mut materials, ran, &mut egg_info);
+//     }
+// }
+
+pub fn random_egg_generation(
     mut coms: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
@@ -97,22 +194,7 @@ pub fn egg_generation(
 ) {
 
     if egg_info.timer.tick(time.delta()).just_finished() {
-        spawn_egg(&mut coms, &mut meshes, &mut materials, Vec2::new(5.0, 5.0), &mut egg_info);
-
-        let start = EGG_SPAWN_POS - EGG_SPAWN_SIZE; 
-        let end = EGG_SPAWN_POS + EGG_SPAWN_SIZE; 
-
-        let mut rng = rand::rng();
-        let ran = (rng.next_u32(), rng.next_u32());
-        let ran = Vec2::new(ran.0 as f32, ran.1 as f32);
-
-        let ran = (ran / Vec2::splat(u32::MAX as f32)) * (end - start) + start;
-
-        spawn_egg(&mut coms, &mut meshes, &mut materials, ran, &mut egg_info);
-
-
+        spawn_random_egg(&mut coms, &mut meshes, &mut materials, &mut egg_info);
     }
-
-
 }
 

@@ -3,8 +3,9 @@
 Just finished adding upgrades
 
 todo: 
-* different types of eggs
-
+* do more for the different egg types
+* fix sounds. It sounds like the sounds are not getting deleted
+* better upgrade GUI
 
 
 

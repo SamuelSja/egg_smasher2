@@ -12,6 +12,7 @@ pub struct Egg {
     pub health: f32,
     pub max_health: f32,
     pub color: Color,
+    pub shells: i32,
 }
 
 impl Egg {
@@ -27,15 +28,21 @@ impl Egg {
         Color::linear_rgb(linear.red * par, linear.green * par, linear.blue * par)
     }
 
-    pub fn new(health: f32, vel_thresh: f32, color: Color) -> Self {
+    pub fn new(health: f32, vel_thresh: f32, color: Color, shells: i32) -> Self {
         Self {
             vel_thresh,
             health,
             max_health: health,
             color,
+            shells,
         }
     }
 }
+
+
+
+
+
 
 #[derive(Resource)]
 pub struct EggGenerationInfo {

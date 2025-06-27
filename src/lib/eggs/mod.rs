@@ -20,10 +20,10 @@ impl Plugin for EggPlug {
     fn build(&self, app: &mut App) {
         app
         .init_resource::<EggGenerationInfo>()
-        .add_systems(Startup, spawn_test_egg)
+        // .add_systems(Startup, spawn_test_egg)
         .add_systems(Update, (
             smash_egg,
-            egg_generation,
+            random_egg_generation,
         ))
         ;
     }
