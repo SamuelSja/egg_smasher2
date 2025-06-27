@@ -3,8 +3,7 @@
 Just finished adding upgrades
 
 todo: 
-* Fix the cube hit box
-
+* different types of eggs
 
 
 

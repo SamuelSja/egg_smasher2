@@ -7,7 +7,6 @@ use bevy::prelude::*;
 
 use bevy::color::palettes::basic::BLUE;
 use bevy::render::primitives::Aabb;
-use bevy::window::PrimaryWindow;
 
 use crate::lib::helper::restrict_transform_movement;
 use crate::lib::scene::structs::Solid;
@@ -16,7 +15,7 @@ use crate::lib::upgrades::Upgrade;
 
 use super::structs::{MainCamera, Player, YVel};
 
-use super::{CAMERA_DIST, CAMERA_LIMIT, CAMERA_MOVE_SPEED, GRAVITY, JUMP_POWER, PLAYER_SPEED};
+use super::{CAMERA_LIMIT, CAMERA_MOVE_SPEED, GRAVITY, JUMP_POWER, PLAYER_SPEED};
 
 pub fn spawn_player (
     mut coms: Commands,
@@ -80,7 +79,7 @@ pub fn apply_yvel (
     mut player_q: Query<(&mut YVel, &mut Transform), With<Player>>,
     time: Res<Time>,
 ) {
-    for (mut vel, mut transform) in player_q.iter_mut() {
+    for (vel, mut transform) in player_q.iter_mut() {
         transform.translation.y += vel.vel * time.delta_secs();
     }
 }

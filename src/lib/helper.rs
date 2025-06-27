@@ -17,7 +17,7 @@ use bevy::{math::{Vec2, Vec3}, transform::components::Transform};
 
 
 
-
+/// Checks for an R-1 intersection
 pub fn intersect_1d(start1: f32, end1: f32, start2: f32, end2: f32) -> bool {
     start1 < start2 && start2 < end1
     || start2 < start1 && start1 < end2
@@ -25,6 +25,7 @@ pub fn intersect_1d(start1: f32, end1: f32, start2: f32, end2: f32) -> bool {
     || start2 < end1 && end1 < end2
 }
 
+/// Checks for an R-2 intersection
 pub fn intersect_2d(start1: Vec2, end1: Vec2, start2: Vec2, end2: Vec2) -> (bool, bool) {
     let x = intersect_1d(start1.x, end1.x, start2.x, end2.x);
     let y = intersect_1d(start1.y, end1.y, start2.y, end2.y);
@@ -32,7 +33,7 @@ pub fn intersect_2d(start1: Vec2, end1: Vec2, start2: Vec2, end2: Vec2) -> (bool
     (x, y)
 }
 
-
+/// Checks for an R-3 intersection
 pub fn intersect_3d(start1: Vec3, end1: Vec3, start2: Vec3, end2: Vec3) -> (bool, bool, bool) {
     let x = intersect_1d(start1.x, end1.x, start2.x, end2.x);
     let y = intersect_1d(start1.y, end1.y, start2.y, end2.y);
@@ -42,7 +43,9 @@ pub fn intersect_3d(start1: Vec3, end1: Vec3, start2: Vec3, end2: Vec3) -> (bool
 }
 
 
-
+/// If collides the method returns how much each direction collided.
+/// If the objects do not collide this method returns (None, None, None)
+/// All dimensions will be 0 except the greatest
 pub fn collide(pos1: Vec3, size1: Vec3, pos2: Vec3, size2: Vec3) -> (Option<f32>, Option<f32>, Option<f32>) {
     let start1 = pos1 - size1 / 2.0;
     let end1 = pos1 + size1 / 2.0;
@@ -123,6 +126,7 @@ pub fn collide(pos1: Vec3, size1: Vec3, pos2: Vec3, size2: Vec3) -> (Option<f32>
     }
 }
 
+/// This method return true if the two objects collide and false otherwise
 pub fn did_collide(pos1: Vec3, size1: Vec3, pos2: Vec3, size2: Vec3) -> bool {
     let collide = collide(pos1, size1, pos2, size2);
 
@@ -135,7 +139,7 @@ pub fn did_collide(pos1: Vec3, size1: Vec3, pos2: Vec3, size2: Vec3) -> bool {
 
 
 
-
+/// This method moves the moving object back from the static object when they overlap.
 pub fn restrict_transform_movement(
     moving_transform: &mut Transform,
     moving_size: Vec3, 
@@ -163,3 +167,35 @@ pub fn restrict_transform_movement(
 
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_intersect_1d() {
+        assert_eq!(intersect_1d(0.0, 1.0, 0.5, 1.5), true);
+        assert_eq!(intersect_1d(0.5, 1.5, 0.0, 1.0), true);
+        assert_eq!(intersect_1d(0.0, 0.5, 1.0, 2.0), false);
+        assert_eq!(intersect_1d(1.0, 2.0, 0.0, 0.5), false);
+        assert_eq!(intersect_1d(0.0, 2.0, 0.5, 1.5), true);
+        assert_eq!(intersect_1d(0.5, 1.5, 0.0, 2.0), true);
+    }
+
+    #[test]
+    fn test_intersect_2d() {
+        assert_eq!(intersect_2d(Vec2::new(0.0, 0.0), Vec2::new(1.0, 1.0), Vec2::new(0.0, 100.0), Vec2::new(2.0, 200.0)), (true, false));
+        assert_eq!(intersect_2d(Vec2::new(0.0, 0.0), Vec2::new(1.0, 1.0), Vec2::new(100.0, 0.0), Vec2::new(200.0, 2.0)), (false, true));
+    }
+
+    #[test]
+    fn test_collide() {
+        assert_eq!(collide(Vec3::splat(0.0), Vec3::splat(2.0), Vec3::new(0.0, 5.0, 0.0), Vec3::splat(2.0)), (None, None, None));
+
+        let case2 = collide(Vec3::splat(0.0), Vec3::splat(2.0), Vec3::new(0.0, 1.24, 0.0), Vec3::splat(5.0));
+        let (_, y, _) = case2;
+        assert_ne!(y, None);
+
+    }
+
+
+}
