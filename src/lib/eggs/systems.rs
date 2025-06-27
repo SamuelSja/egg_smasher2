@@ -50,13 +50,17 @@ pub fn smash_egg (
             let (_, y_collide, _) = collide(transform.translation, player_size, egg_transform.translation, egg_size);
 
             if let Some(y_collide) = y_collide {
+                
+
                 if y_collide > 0.0 && y_vel.vel <= -egg.vel_thresh {
+                    
+                    let upgrade = Upgrade::Damage.effect(upgrade_info.upgrades[Upgrade::Damage as usize], None).expect("Damage is not dependent on time");
+                    let damage = -y_vel.vel * upgrade;
+                    let damage = damage.min(egg.health);
 
-                    let damage = -y_vel.vel.min(egg.health);
-                    y_vel.vel += damage;
+                    y_vel.vel += damage / upgrade;
 
-                    // time = 0.0 because it should have no effect on damage
-                    let damage = damage * Upgrade::Damage.effect(upgrade_info.upgrades[Upgrade::Damage as usize], 0.0);
+                    println!("damage: {damage}, vel: {}", y_vel.vel);
 
                     egg.health -= damage;
 

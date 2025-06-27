@@ -72,7 +72,7 @@ pub fn move_player (
         dir = dir.normalize_or_zero();
 
         // arg. time is 0 because it should have no effect on speed
-        player.translation += dir * PLAYER_SPEED * time.delta_secs() * Upgrade::Speed.effect(upgrade_info.upgrades[Upgrade::Speed as usize], 0.0);
+        player.translation += dir * PLAYER_SPEED * time.delta_secs() * Upgrade::Speed.effect(upgrade_info.upgrades[Upgrade::Speed as usize], None).expect("Speed not dependent on time");
     }
 }
 
