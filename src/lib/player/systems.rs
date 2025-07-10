@@ -9,6 +9,7 @@ use bevy::color::palettes::basic::BLUE;
 use bevy::render::primitives::Aabb;
 
 use crate::lib::helper::restrict_transform_movement;
+use crate::lib::player::CAMERA_DIST_LIMIT;
 use crate::lib::scene::structs::Solid;
 use crate::lib::upgrades::base::UpgradeInfo;
 use crate::lib::upgrades::Upgrade;
@@ -189,6 +190,19 @@ pub fn camera_zoom (
         }
     }
 }
+
+pub fn restrict_camera_zoom (
+    mut camera_q: Query<&mut MainCamera>,
+) {
+    if let Ok(mut camera) = camera_q.get_single_mut() {
+        if camera.dist < CAMERA_DIST_LIMIT.0 {
+            camera.dist = CAMERA_DIST_LIMIT.0;
+        } else if camera.dist > CAMERA_DIST_LIMIT.1 {
+            camera.dist = CAMERA_DIST_LIMIT.1
+        }
+    }
+}
+
 
 pub fn jump (
     keyboard: Res<ButtonInput<KeyCode>>,

@@ -5,8 +5,9 @@ Just finished adding upgrades
 todo: 
 * do more for the different egg types
 * better upgrade GUI
-* limit camera zoom in and zoom out
-
+* reorganizes. Primarily put R2Vel, YVel, and Solid stuff into a new directory
+* add a GameSettings Resource
+* boosts
 
 
 
