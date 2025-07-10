@@ -1,7 +1,8 @@
 
-use std::time::Duration;
+use std::{ops::Range, time::Duration};
 
 use bevy::prelude::*;
+use rand::random_range;
 
 use super::EGG_PERIOD;
 
@@ -39,8 +40,38 @@ impl Egg {
     }
 }
 
+#[derive(Component)]
+pub struct EggParticle {
+    pub secs_left: f32,
+}
 
+impl Default for EggParticle {
 
+    /// Creates an EggParticle with a despawn time of 10 seconds
+    fn default() -> Self {
+        // Self {
+        //     secs_left: 10.0,
+        // }
+
+        Self::new(10.0)
+
+    }
+}
+
+impl EggParticle {
+
+    /// Creates a new EggParticle with the given despawn time
+    pub fn new(time: f32) -> Self {
+        Self {
+            secs_left: time, 
+        }
+    }
+
+    /// Creates a new EggParticle with a random despawn time in the given range
+    pub fn rand(range: Range<f32>) -> Self {
+        Self::new(random_range(range))
+    }
+}
 
 
 
@@ -59,6 +90,34 @@ impl Default for EggGenerationInfo {
     }
 }
 
+
+
+#[derive(Component)]
+pub struct R2Vel {
+    pub vel: Vec2,
+}
+
+impl Default for R2Vel {
+
+    /// Creates a R2Vel with values <0, 0>
+    fn default() -> Self {
+        Self {
+            vel: Vec2::default()
+        }
+    }
+}
+
+impl R2Vel {
+    pub fn new(x: f32, y: f32) -> Self {
+        Self {
+            vel: Vec2::new(x, y)
+        }
+    }
+
+    pub fn rand(x_range: Range<f32>, y_range: Range<f32>) -> Self {
+        Self::new(random_range(x_range), random_range(y_range))
+    }
+}
 
 
 

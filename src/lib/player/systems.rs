@@ -75,23 +75,23 @@ pub fn move_player (
     }
 }
 
-pub fn apply_yvel (
-    mut player_q: Query<(&mut YVel, &mut Transform), With<Player>>,
-    time: Res<Time>,
-) {
-    for (vel, mut transform) in player_q.iter_mut() {
-        transform.translation.y += vel.vel * time.delta_secs();
-    }
-}
-
-pub fn gravity (
-    mut player_q: Query<&mut YVel, With<Player>>,
-    time: Res<Time>,
-) {
-    for mut vel in player_q.iter_mut() {
-        vel.vel -= GRAVITY * time.delta_secs();
-    }
-}
+// pub fn apply_yvel (
+//     mut player_q: Query<(&mut YVel, &mut Transform), With<Player>>,
+//     time: Res<Time>,
+// ) {
+//     for (vel, mut transform) in player_q.iter_mut() {
+//         transform.translation.y += vel.vel * time.delta_secs();
+//     }
+// }
+// 
+// pub fn gravity (
+//     mut player_q: Query<&mut YVel, With<Player>>,
+//     time: Res<Time>,
+// ) {
+//     for mut vel in player_q.iter_mut() {
+//         vel.vel -= GRAVITY * time.delta_secs();
+//     }
+// }
 
 pub fn camera_follow (
     mut camera_q: Query<(&mut Transform, &MainCamera)>,
@@ -112,39 +112,41 @@ pub fn camera_follow (
     }
 }
 
-pub fn restrict_movement (
-    mut player_q: Query<(&mut Transform, &Aabb, &mut YVel), With<Player>>,
-    solids_q: Query<(&Transform, &Aabb), (With<Solid>, Without<Player>)>
-) {
-    for (mut transform, aabb, mut y_vel) in player_q.iter_mut() {
-        for (solid_transform, solid_aabb) in solids_q.iter() {
+// pub fn restrict_yvel (
+//     mut player_q: Query<(&mut Transform, &Aabb, &mut YVel)>,
+//     solids_q: Query<(&Transform, &Aabb), With<Solid>>
+// ) {
+//     for (mut transform, aabb, mut y_vel) in player_q.iter_mut() {
+//         for (solid_transform, solid_aabb) in solids_q.iter() {
             
-            let mut player_size: Vec3 = aabb.half_extents.into();
-            player_size *= 2.0;
+//             let mut player_size: Vec3 = aabb.half_extents.into();
+//             player_size *= 2.0;
 
-            let mut solid_size: Vec3 = solid_aabb.half_extents.into();
-            solid_size *= 2.0;
+//             let mut solid_size: Vec3 = solid_aabb.half_extents.into();
+//             solid_size *= 2.0;
 
 
-            let (_, y_restrict, _) = restrict_transform_movement(&mut transform, player_size, solid_transform, solid_size);
+//             let (_, y_restrict, _) = restrict_transform_movement(&mut transform, player_size, solid_transform, solid_size);
 
-            if let Some(y_restrict) = y_restrict {
+//             if let Some(y_restrict) = y_restrict {
 
-                if y_restrict != 0.0 {
-                    y_vel.vel = 0.0;
-                }
+//                 if y_restrict != 0.0 {
+//                     y_vel.vel = 0.0;
+//                 }
 
-                if y_restrict > 0.0 {
-                    y_vel.grounded = true; 
-                } else {
-                    y_vel.grounded = false;
-                }
-            } else {
-                y_vel.grounded = false;
-            }
-        }
-    }
-}
+//                 if y_restrict > 0.0 {
+//                     y_vel.grounded = true; 
+//                 } else {
+//                     y_vel.grounded = false;
+//                 }
+//             } else {
+//                 y_vel.grounded = false;
+//             }
+//         }
+//     }
+// }
+
+
 
 
 pub fn camera_movement (

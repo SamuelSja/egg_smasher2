@@ -4,10 +4,16 @@ Just finished adding upgrades
 
 todo: 
 * do more for the different egg types
-* fix sounds. It sounds like the sounds are not getting deleted
 * better upgrade GUI
-* egg particles (will need to create a physics system for the particles). I want them to fall to the floor and stay there for like 5 or so seconds
 * limit camera zoom in and zoom out
+
+
+
+
+Long term todos:
+* Quests
+* different egg fields
+* performance settings (ex. number of particles created)
 
 
 

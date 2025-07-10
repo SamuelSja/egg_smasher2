@@ -4,9 +4,9 @@
 use std::u32;
 
 use bevy::{color::palettes::css::*, prelude::*};
-use rand::{Rng, RngCore};
+use rand::{random_range, Rng, RngCore};
 
-use crate::lib::{helper::{collide}, player::structs::{Player, Shells, YVel}, upgrades::{base::UpgradeInfo, Upgrade}};
+use crate::lib::{eggs::structs::{EggParticle, R2Vel}, helper::collide, player::structs::{Player, Shells, YVel}, upgrades::{base::UpgradeInfo, Upgrade}};
 
 use super::{structs::{Egg, EggGenerationInfo}, EGG_SPAWN_POS, EGG_SPAWN_SIZE};
 
@@ -108,6 +108,7 @@ pub fn smash_egg (
     mut player_q: Query<(&Transform, &mut YVel), With<Player>>,
     mut egg_q: Query<(Entity, &mut Egg, &Transform, &mut MeshMaterial3d<StandardMaterial>)>,
     mut materials: ResMut<Assets<StandardMaterial>>,
+    mut meshes: ResMut<Assets<Mesh>>,
     mut shells: ResMut<Shells>,
     mut egg_info: ResMut<EggGenerationInfo>,
     assets: Res<AssetServer>,
@@ -148,6 +149,20 @@ pub fn smash_egg (
                         ));
 
 
+                        let translation = egg_transform.translation;
+
+                        let size_range = &(0.1..0.3);
+                        for _ in 0..40 {
+                            coms.spawn((
+                                EggParticle::rand(9.0..10.0),
+                                YVel::rand(0.0..12.0),
+                                Mesh3d(meshes.add(Cuboid::new(random_range(size_range.clone()), random_range(size_range.clone()), random_range(size_range.clone())))),
+                                Transform::from_xyz(translation.x, translation.y, translation.z),
+                                MeshMaterial3d(materials.add(egg.color)),
+                                R2Vel::rand(-0.050..0.050, -0.050..0.050),
+                            ));
+                        }
+
                         coms.get_entity(entity).unwrap().despawn();
 
                         let new_shells = shells.val as i32 + egg.shells;
@@ -164,6 +179,15 @@ pub fn smash_egg (
         }
     }
 }
+
+
+
+
+
+
+
+
+
 
 // pub fn basic_egg_generation(
 //     mut coms: Commands,
@@ -198,3 +222,36 @@ pub fn random_egg_generation(
     }
 }
 
+pub fn apply_r2vel (
+    mut r2vels_q: Query<(&mut Transform, &R2Vel)>
+) {
+    for (mut transform, vel) in r2vels_q.iter_mut() {
+        transform.translation.x += vel.vel.x;
+        transform.translation.z += vel.vel.y;
+    }
+}
+
+/// A naive implementation of static friction
+pub fn static_friction (
+    mut obj_q: Query<(&mut R2Vel, &YVel)>
+) {
+    for (mut r2vel, yvel) in obj_q.iter_mut() {
+        if yvel.grounded {
+            r2vel.vel = Vec2::ZERO;
+        }
+    }
+}
+
+pub fn egg_particle_despawn (
+    mut coms: Commands,
+    mut particle_q: Query<(Entity, &mut EggParticle)>,
+    time: Res<Time>,
+) {
+    for (entity, mut particle) in particle_q.iter_mut() {
+        particle.secs_left -= time.delta_secs();
+
+        if particle.secs_left <= 0.0 {
+            coms.get_entity(entity).expect("Entity should exist").despawn();
+        }
+    }
+}

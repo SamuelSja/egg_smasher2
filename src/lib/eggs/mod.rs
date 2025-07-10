@@ -24,6 +24,9 @@ impl Plugin for EggPlug {
         .add_systems(Update, (
             smash_egg,
             random_egg_generation,
+            apply_r2vel,
+            static_friction,
+            egg_particle_despawn,
         ))
         ;
     }
