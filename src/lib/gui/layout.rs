@@ -31,7 +31,6 @@ pub fn build_gui (
     ;
 }
 
-
 /// Spawns all upgrade labels/buttons on a &mut ChildBuilder
 /// 
 /// Panics when upgrade_info's upgrades len is greater than the Upgrade enum varient count

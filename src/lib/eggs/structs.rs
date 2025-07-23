@@ -92,33 +92,5 @@ impl Default for EggGenerationInfo {
 
 
 
-#[derive(Component)]
-pub struct R2Vel {
-    pub vel: Vec2,
-}
-
-impl Default for R2Vel {
-
-    /// Creates a R2Vel with values <0, 0>
-    fn default() -> Self {
-        Self {
-            vel: Vec2::default()
-        }
-    }
-}
-
-impl R2Vel {
-    pub fn new(x: f32, y: f32) -> Self {
-        Self {
-            vel: Vec2::new(x, y)
-        }
-    }
-
-    pub fn rand(x_range: Range<f32>, y_range: Range<f32>) -> Self {
-        Self::new(random_range(x_range), random_range(y_range))
-    }
-}
-
-
 
 

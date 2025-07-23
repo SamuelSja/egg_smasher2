@@ -140,6 +140,7 @@ pub fn did_collide(pos1: Vec3, size1: Vec3, pos2: Vec3, size2: Vec3) -> bool {
 
 
 /// This method moves the moving object back from the static object when they overlap.
+/// Returns the change of the transform.
 pub fn restrict_transform_movement(
     moving_transform: &mut Transform,
     moving_size: Vec3, 

@@ -6,17 +6,15 @@ use bevy::input::mouse::MouseWheel;
 use bevy::prelude::*;
 
 use bevy::color::palettes::basic::BLUE;
-use bevy::render::primitives::Aabb;
 
-use crate::lib::helper::restrict_transform_movement;
+use crate::lib::omnipresent::structs::{Gravitatable, Phy};
 use crate::lib::player::CAMERA_DIST_LIMIT;
-use crate::lib::scene::structs::Solid;
 use crate::lib::upgrades::base::UpgradeInfo;
 use crate::lib::upgrades::Upgrade;
 
-use super::structs::{MainCamera, Player, YVel};
+use super::structs::{MainCamera, Player};
 
-use super::{CAMERA_LIMIT, CAMERA_MOVE_SPEED, GRAVITY, JUMP_POWER, PLAYER_SPEED};
+use super::{CAMERA_LIMIT, CAMERA_MOVE_SPEED, JUMP_POWER, PLAYER_SPEED};
 
 pub fn spawn_player (
     mut coms: Commands,
@@ -25,7 +23,8 @@ pub fn spawn_player (
 ) {
     coms.spawn((
         Player {},
-        YVel::default(),
+        Phy::default(),
+        Gravitatable {},
         Mesh3d(meshes.add(Cuboid::default())),
         MeshMaterial3d(materials.add(Color::from(BLUE))),
         Transform::from_xyz(0.0, 5.5, 0.0),
@@ -76,24 +75,6 @@ pub fn move_player (
     }
 }
 
-// pub fn apply_yvel (
-//     mut player_q: Query<(&mut YVel, &mut Transform), With<Player>>,
-//     time: Res<Time>,
-// ) {
-//     for (vel, mut transform) in player_q.iter_mut() {
-//         transform.translation.y += vel.vel * time.delta_secs();
-//     }
-// }
-// 
-// pub fn gravity (
-//     mut player_q: Query<&mut YVel, With<Player>>,
-//     time: Res<Time>,
-// ) {
-//     for mut vel in player_q.iter_mut() {
-//         vel.vel -= GRAVITY * time.delta_secs();
-//     }
-// }
-
 pub fn camera_follow (
     mut camera_q: Query<(&mut Transform, &MainCamera)>,
     player_q: Query<&Transform, (With<Player>, Without<MainCamera>)>,
@@ -112,43 +93,6 @@ pub fn camera_follow (
 
     }
 }
-
-// pub fn restrict_yvel (
-//     mut player_q: Query<(&mut Transform, &Aabb, &mut YVel)>,
-//     solids_q: Query<(&Transform, &Aabb), With<Solid>>
-// ) {
-//     for (mut transform, aabb, mut y_vel) in player_q.iter_mut() {
-//         for (solid_transform, solid_aabb) in solids_q.iter() {
-            
-//             let mut player_size: Vec3 = aabb.half_extents.into();
-//             player_size *= 2.0;
-
-//             let mut solid_size: Vec3 = solid_aabb.half_extents.into();
-//             solid_size *= 2.0;
-
-
-//             let (_, y_restrict, _) = restrict_transform_movement(&mut transform, player_size, solid_transform, solid_size);
-
-//             if let Some(y_restrict) = y_restrict {
-
-//                 if y_restrict != 0.0 {
-//                     y_vel.vel = 0.0;
-//                 }
-
-//                 if y_restrict > 0.0 {
-//                     y_vel.grounded = true; 
-//                 } else {
-//                     y_vel.grounded = false;
-//                 }
-//             } else {
-//                 y_vel.grounded = false;
-//             }
-//         }
-//     }
-// }
-
-
-
 
 pub fn camera_movement (
     mouse_buttons: Res<ButtonInput<MouseButton>>,
@@ -206,12 +150,12 @@ pub fn restrict_camera_zoom (
 
 pub fn jump (
     keyboard: Res<ButtonInput<KeyCode>>,
-    mut player_q: Query<&mut YVel, With<Player>>,
+    mut player_q: Query<&mut Phy, With<Player>>,
 ) {
 
-    if let Ok(mut vel) = player_q.get_single_mut() {
-        if keyboard.just_pressed(KeyCode::Space) && vel.grounded {
-            vel.vel += JUMP_POWER;
+    if let Ok(mut phy) = player_q.get_single_mut() {
+        if keyboard.just_pressed(KeyCode::Space) && phy.grounded {
+            phy.vel.y += JUMP_POWER;
         }
     }
 }

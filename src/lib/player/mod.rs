@@ -10,11 +10,12 @@ use bevy::prelude::*;
 use structs::Shells;
 use systems::*;
 
-use crate::lib::scene::systems::{apply_yvel, restrict_yvel};
+use crate::lib::omnipresent::systems::{apply_phy, restrict_phy};
+
+// use crate::lib::scene::systems::{apply_yvel, restrict_yvel};
 
 
 pub const PLAYER_SPEED: f32 = 5.0;
-pub const GRAVITY: f32 = 20.0;
 pub const CAMERA_DIST: f32 = 8.0;
 pub const CAMERA_MOVE_SPEED: f32 = 0.01; // rad / px
 pub const CAMERA_LIMIT: f32 = (7.0 / 16.0) * PI; // rad
@@ -29,8 +30,8 @@ impl Plugin for PlayerPlug {
         .init_resource::<Shells>()
         .add_systems(Startup, spawn_player)
         .add_systems(Update, (
-            jump.before(apply_yvel),
-            move_player.before(camera_follow).before(restrict_yvel),
+            jump.before(apply_phy),
+            move_player.before(camera_follow).before(restrict_phy),
             camera_movement.before(camera_follow),
             camera_follow,
             camera_zoom,

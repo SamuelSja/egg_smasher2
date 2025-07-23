@@ -5,8 +5,9 @@ Just finished adding upgrades
 todo: 
 * do more for the different egg types
 * better upgrade GUI
-* reorganizes. Primarily put R2Vel, YVel, and Solid stuff into a new directory
-* add a GameSettings Resource
+* reorganizes. Primarily put R2Vel, YVel, and Solid stuff into a new directory - see omnipresent directory
+* add a GameSettings Resource to omnipresent directory
+    - Game settings for number of particles created and dev settings like egg spawn rate
 * boosts
 
 
